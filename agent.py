@@ -3,6 +3,9 @@ import random
 import numpy as np
 from collections import deque
 from snake import SnakeGame, Direction, Point
+from model import Linear_QNet, QTrainer
+from plot import plot
+import os
 
 MAX_MEMORY = 100_000 #Can store 100k items in mem
 BATCH_SIZE = 1000
@@ -12,12 +15,16 @@ class Agent:
     def __init__(self):
         self.num_games = 0
         self.epsilon = 0 # Controls randomness
-        self.gamma = 0 # Discount rate
+        self.gamma = 0.9 # Discount rate 
         self.in_memory = deque(maxlen=MAX_MEMORY)
 
-        # TODO: model, trainer
-        self.model = None
-        self.trainer = None
+        self.model = Linear_QNet(11, 256, 3)
+        self.trainer = QTrainer(self.model, lr=LEARNING_RATE, g=self.gamma)
+
+        # Load saved model if it exists
+        if os.path.exists('./model/model.pth'):
+            self.model.load_state_dict(torch.load('./model/model.pth'))
+            print('Loaded saved model')
 
     def get_state(self, game):
         head = game.snake[0]
@@ -83,7 +90,7 @@ class Agent:
 
     def get_action(self, state):
         # Random moves
-        self.epsilon = 80 - self.num_games
+        self.epsilon = max(0, 200 - self.num_games)
         move = [0, 0, 0]
 
         if random.randint(0, 200) < self.epsilon:
@@ -91,7 +98,7 @@ class Agent:
             move[i] = 1
         else:
             this_state = torch.tensor(state, dtype=torch.float)
-            prediction = self.model.predict(this_state)
+            prediction = self.model(this_state)
             i = torch.argmax(prediction).item()
             move[i] = 1
 
@@ -131,13 +138,17 @@ def train():
 
             if score > best_score:
                 best_score = score
-                #TODO: save model
+                agent.model.save()
 
             print('Game ', agent.num_games, 'Score: ', score, 'Best: ', best_score)
 
-            #TODO: Plot
+            plot_scores.append(score)
+            total_score += score
+            mean_score = total_score / agent.num_games
+            plot_mean_scores.append(mean_score)
+
+            plot(plot_scores, plot_mean_scores)
 
 
- 
 if __name__ == '__main__':
     train()
