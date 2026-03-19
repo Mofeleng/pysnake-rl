@@ -6,27 +6,13 @@ import numpy as np
 pygame.init()
 font = pygame.font.Font('poppins.ttf', 25)
 
-#reset - Agent should be able to reset and start new game
-
-#reward
-
-#play(action) -> Returns direction
-
-#game_iteration
-
-#is_collision
-
 class Direction(Enum):
     RIGHT = 1
     LEFT = 2
     UP = 3
     DOWN = 4
 
-class Reward(Enum):
-    EAT_FOOD = 10
-    COLLISION = -10
-    OTHER = 0
-    
+
 Point = namedtuple('Point', 'x, y')
 
 # rgb colors
@@ -45,7 +31,7 @@ class SnakeGame:
         self.h = h
         # init display
         self.display = pygame.display.set_mode((self.w, self.h))
-        pygame.display.set_caption('Snake')
+        pygame.display.set_caption('PySnake RL')
         self.clock = pygame.time.Clock()
         self.reset()
 
@@ -87,13 +73,13 @@ class SnakeGame:
         game_over = False
         if self.is_collision() or self.frame_iteration > 100*len(self.snake):
             game_over = True
-            reward = Reward.COLLISION
+            reward = -10
             return reward, game_over, self.score
             
         # 4. place new food or just move
         if self.head == self.food:
             self.score += 1
-            reward = Reward.EAT_FOOD
+            reward = 10
             self._place_food()
         else:
             self.snake.pop()
