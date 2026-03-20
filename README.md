@@ -3,8 +3,9 @@
 A Snake game powered by a Deep Q-Learning (DQN) agent built with PyTorch and Pygame. The agent learns to play Snake from scratch through reinforcement learning, improving its strategy over hundreds of games.
 
 ---
-<img src="public/img1.png" width="48%" />
-<img src="public/img2.png" width="48%" />
+
+<img src="public/img1.png" />
+<img src="public/img2.png" />
 
 ## How It Works
 
